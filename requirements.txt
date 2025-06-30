@@ -1,0 +1,6 @@
+os
+argparse
+getpass
+requests
+astroquery
+pandas
