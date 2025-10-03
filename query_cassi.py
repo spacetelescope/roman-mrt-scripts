@@ -75,9 +75,9 @@ def query_cassi(start_date, end_date, limit, token):
         "Authorization": f"token {token}"
     }
     if end_date:
-        date_range = f">={start_date}T00:00:00,<={end_date}T23:59:59"
+        date_range = f">={start_date},<={end_date}"
     else:
-        date_range = f">={start_date}T00:00:00"
+        date_range = f">={start_date}"
     payload = {
         "conditions": [
             {"source": "Eng"},
@@ -103,6 +103,9 @@ def count_results(response, n_rjust=8):
     """
     data = response.json()
     results = DataFrame(data.get("results", []))
+    if len(results) == 0:
+        print("No files!")
+        return
 
     counts = results.value_counts("fileType")
     n_longest = max([len(c) for c in counts.keys()]) + 1
