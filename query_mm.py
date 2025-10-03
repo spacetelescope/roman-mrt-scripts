@@ -2,6 +2,7 @@ import os
 import argparse
 from getpass import getpass
 from astroquery.mast import MastMissions
+from datetime import datetime
 
 
 def parse_args():
@@ -66,7 +67,11 @@ def parse_token(token):
     return token
 
 
-def query(program, **kw):
+def max_product_level(prod):
+    return max([int(p) for p in prod.replace(',', ' ').split()])
+
+
+def count(r, pid):
     """Query MissionMast for Roman data and print file counts.
 
     Arguments:
@@ -76,11 +81,15 @@ def query(program, **kw):
     """
     # queries a specific program, prints out number of observations, and number of WFI01 observations
     # (this is analogous to the number of exposures)
-    r = m.query_criteria(program=program, **kw)
-    n = len(r)
-    n1 = len([rx for rx in r if rx["detector"] == "WFI01"])
-    print(f"Program {program}: {n} datasets for {n1} exposures")
-    return r
+    rr = r.query('program == @pid')
+    max_prod = rr["productLevel"].apply(max_product_level).value_counts()
+
+    n = len(rr)
+    n1 = len(rr.query("detector == 'WFI01'"))
+    print(f"Program {pid}: {n} datasets for {n1} exposures")
+    
+    for i in sorted(max_prod.keys()):
+        print(f"  {max_prod[i]} processed to L{i}")
 
 
 if __name__ == "__main__":
@@ -88,8 +97,14 @@ if __name__ == "__main__":
 
     m = MastMissions(mission="roman")
     m.login(token=token)
-   
+  
+    r = m.query_criteria(program=program_ids, limit=limit).to_pandas()
+
+    print(f"{datetime.now()} - total datasets: {len(r)}")
     for pid in program_ids:
-        query(pid, limit=limit)
+        count(r, pid)
+
+        #print(r.value_counts("detector").sort_index())
+        #print(r.value_counts("productLevel"))
 
     m.logout()
