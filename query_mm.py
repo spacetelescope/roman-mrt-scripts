@@ -23,7 +23,7 @@ def parse_args():
     parser.add_argument(
         "-p", "--program-ids",
         nargs="+",
-        type=int,
+        #type=int,
         required=True,
         help="List of program IDs to query"
     )
@@ -97,14 +97,18 @@ if __name__ == "__main__":
 
     m = MastMissions(mission="roman")
     m.login(token=token)
-  
-    r = m.query_criteria(program=program_ids, limit=limit).to_pandas()
+
+    r = m.query_criteria(program=program_ids, limit=limit, 
+        select_cols=["program","productLevel"]
+        ).to_pandas()
 
     print(f"{datetime.now()} - total datasets: {len(r)}")
-    for pid in program_ids:
-        count(r, pid)
+    #for pid in program_ids:
+    #    count(r, pid)
 
-        #print(r.value_counts("detector").sort_index())
-        #print(r.value_counts("productLevel"))
-
+    for pid, x in r.groupby("program"):
+        print(f"Program {pid}: {len(x)} Datasets")
+        y = x.value_counts(subset="productLevel").sort_index()
+        for level, count in y.items():
+            print(f"  {str(level):10s} {count:>5d}")
     m.logout()
