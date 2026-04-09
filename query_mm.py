@@ -99,16 +99,15 @@ if __name__ == "__main__":
     m.login(token=token)
 
     r = m.query_criteria(program=program_ids, limit=limit, 
-        select_cols=["program","productLevel"]
+        select_cols=["program", "productLevel", "optical_element"]
         ).to_pandas()
 
     print(f"{datetime.now()} - total datasets: {len(r)}")
-    #for pid in program_ids:
-    #    count(r, pid)
 
-    for pid, x in r.groupby("program"):
-        print(f"Program {pid}: {len(x)} Datasets")
-        y = x.value_counts(subset="productLevel").sort_index()
-        for level, count in y.items():
-            print(f"  {str(level):10s} {count:>5d}")
+    counts = r.value_counts(subset=["program", "productLevel", "optical_element"]).sort_index()
+
+    for pid, x in counts.groupby("program"):
+        print(f"Program {pid}: {x.sum()} Datasets")
+        print(x.loc[pid])
+
     m.logout()
