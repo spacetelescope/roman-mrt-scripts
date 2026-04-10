@@ -3,6 +3,7 @@ import argparse
 import requests
 from getpass import getpass
 from pandas import DataFrame
+from datetime import datetime
 
 
 cassi_url = "https://mast.stsci.edu/cassi/api/v0.1/roman/search/GW1"
@@ -138,4 +139,5 @@ if __name__ == "__main__":
     results = query_cassi_gw_face_l1(
         start_date, end_date, limit, token,
     )
+    print(f"{datetime.now()} - CaSSI Guide Window & FACE L1")
     count_results(results, list_visits=list_visits)
