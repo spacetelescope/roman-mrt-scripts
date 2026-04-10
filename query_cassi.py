@@ -3,6 +3,7 @@ import argparse
 import requests
 from getpass import getpass
 from pandas import DataFrame
+from datetime import datetime
 
 
 cassi_url = "https://mast.stsci.edu/cassi/api/v0.1/roman/search/Eng"
@@ -118,4 +119,5 @@ def count_results(response, n_rjust=8):
 if __name__ == "__main__":
     start_date, end_date, limit, token = parse_args()
     results = query_cassi(start_date, end_date, limit, token)
+    print(f"{datetime.now()} - CaSSI Supplemental & Telemetry")
     count_results(results)
