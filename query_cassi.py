@@ -16,13 +16,13 @@ def parse_args():
     parser.add_argument(
         "-s", "--start-date",
         type=str,
-        help="Start date in YYYY-MM-DD format"
+        help="Start date in YYYY-MM-DD[THH:MM:SS] format"
     )
     parser.add_argument(
         "-e", "--end-date",
         type=str,
         default=None,
-        help="Optional end date in YYYY-MM-DD format"
+        help="Optional end date in YYYY-MM-DD[THH:MM:SS] format"
     )
     parser.add_argument(
         "-l", "--limit",
@@ -63,8 +63,8 @@ def query_cassi(start_date, end_date, limit, token):
     """Query Roman CASSI API for supplemental and telemetry data and return the response.
 
     Arguments:
-    start_date (str): Start date in YYYY-MM-DD format
-    end_date (str or None): Optional end date in YYYY-MM-DD format
+    start_date (str): Start date in YYYY-MM-DD[THH:MM:SS] format
+    end_date (str or None): Optional end date in YYYY-MM-DD[THH:MM:SS] format
     limit (int): Limit for number of results
     token (str): MAST API token
 
@@ -96,7 +96,7 @@ def query_cassi(start_date, end_date, limit, token):
     return response
 
 
-def count_results(response, n_rjust=8):
+def count_results(response):
     """Count the files of different types returned by the CaSSI query.
 
     n_rjust is the number of spaces between the end of the longest file 
@@ -108,12 +108,10 @@ def count_results(response, n_rjust=8):
         print("No files!")
         return
 
-    counts = results.value_counts("fileType")
-    n_longest = max([len(c) for c in counts.keys()]) + 1
-    
-    print("Total files:".ljust(n_longest), str(len(results)).rjust(n_rjust))
-    for c in counts.keys():
-        print(f"{c}:".ljust(n_longest), str(counts[c]).rjust(n_rjust)) 
+    counts = results.value_counts("fileType").sort_index()
+    counts["Total files:"] = counts.sum()
+    countstr = counts.to_string()
+    print(countstr[countstr.find("\n"):])
 
 
 if __name__ == "__main__":
