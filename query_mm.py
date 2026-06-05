@@ -102,13 +102,13 @@ if __name__ == "__main__":
         select_cols=["program", "productLevel", "optical_element"]
         ).to_pandas()
 
-    print(f"{datetime.now()} - total datasets: {len(r)}")
+    print(f"{datetime.now()} - total datasets: {len(r)}\n")
 
     counts = r.value_counts(subset=["program", "productLevel", "optical_element"]).sort_index()
 
     for pid, x in counts.groupby("program"):
         print(f"Program {pid}: {x.sum()} Datasets")
-        print(x.loc[pid])
+        print(x.loc[pid].to_string())
         print("")
 
     m.logout()
